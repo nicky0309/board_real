@@ -1,11 +1,79 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-
-<mapper namespace="com.project.board.repository.BoardRepository"><!--namespace를 통해 UserDAO와 연결합니다. -->
-  		
-  <select id="selectAll" resultType="BoardDto" parameterType="BoardDto">
-  select * from test.t1
-  </select>
-  
-  
+ 
+<mapper namespace="com.project.board.mapper.board.BoardMapper">
+ 
+ <!-- <select id="getBoardList" resultType="com.project.board.web.dto.board.BoardDto"> -->
+ 
+ 	<select id="getBoardList" resultType="BoardDto" parameterType="BoardDto">
+ 	SELECT b.*, u.nickname 
+	FROM board 
+	AS b 
+	INNER JOIN user as u
+	ON b.userNo = u.userNo
+ 	ORDER by boardNo
+ 	</select>
+ 	
+ 	<select id="getBoardDetail" parameterType="int" resultType="BoardDto">
+ 	SELECT b.*, u.nickname 
+	FROM board 
+	AS b 
+	INNER JOIN user as u
+	ON b.userNo = u.userNo
+ 	WHERE 
+ 	boardNo = #{boardNo}
+ 	</select>
+ 	
+ 	<insert id="insertBoard" parameterType="BoardDto">
+ 	INSERT INTO
+ 	board(
+	userNo, content, regDate, title
+	)
+	VALUES(
+	#{userNo}, #{content}, now(), #{title}
+	) 	
+ 	</insert>
+ 	
+ 	<update id="updateBoard" parameterType="BoardDto">
+ 	UPDATE board
+	SET 
+	content = #{content},
+	title = #{title} 
+	WHERE
+	boardNo = #{boardNo}
+ 	</update>
+ 	
+ 	<delete id="deleteBoard" parameterType="int">
+ 	DELETE 
+ 	FROM board 
+ 	WHERE
+ 	boardNo = #{boardRadio}
+ 	</delete>
+ 
+ 	<select id="searchBoard" resultType="BoardDto" parameterType="BoardDto">
+ 	SELECT b.*, u.nickname 
+	FROM board 
+	AS b 
+	INNER JOIN user as u 
+	ON b.userNo = u.userNo 
+	WHERE
+	<choose>
+		<when test = "type.equals('title')">
+		 	title like concat('%', #{keyword}, '%') 		 	 
+		 	ORDER by title
+		</when>
+		<when test = "type.equals('nickname')">
+		 	nickname like concat('%', #{keyword}, '%') 
+		 	ORDER by nickname		
+		</when>
+		<when test = "type.equals('boardNo')">
+		 	boardNo like concat('%', #{keyword}, '%') 
+		 	ORDER by boardNo		
+		</when>
+		<when test = "type.equals('content')">
+		 	content like concat('%', #{keyword}, '%') 
+		 	ORDER by boardNo		
+		</when>				
+	</choose>
+ 	</select>
 </mapper>
